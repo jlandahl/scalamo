@@ -1,8 +1,8 @@
 package object scalamo {
   import cats.data.ValidatedNel
-  import com.amazonaws.services.dynamodbv2.document.{Item, ItemCollection, ScanOutcome, Table}
+  import com.amazonaws.services.dynamodbv2.document.{Item, ItemCollection, PutItemOutcome, ScanOutcome, Table}
   import scala.collection.JavaConverters._
-  import scalamo.mapping.{AttributeUnmarshaller, ItemUnmarshaller}
+  import scalamo.mapping.{AttributeUnmarshaller, ItemMarshaller, ItemUnmarshaller}
 
   type Validated[A] = ValidatedNel[Throwable, A]
 
@@ -47,6 +47,9 @@ package object scalamo {
              nameMap: Map[String, String],
              valueMap: Map[String, AnyRef]): ItemCollection[ScanOutcome] =
       table.scan(filterExpression, projectionExpression, nameMap.asJava, valueMap.asJava)
+
+    def put[A](a: A)(implicit marshaller: ItemMarshaller[A]): PutItemOutcome =
+      table.putItem(marshaller(a))
   }
 
   implicit class ItemCollectionOps[A](val itemCollection: ItemCollection[A]) extends AnyVal {
