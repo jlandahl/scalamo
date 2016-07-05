@@ -22,7 +22,6 @@ also provided.
 
 ```scala
 import scalamo._
-
 import java.time.Instant
 
 case class User(userId: String, name: String, lastLogin: Instant)
