@@ -6,17 +6,20 @@ to interact with DynamoDB when one is working in Scala.
 
 This library is in its early stages, with an initial focus on automatic
 typesafe mapping between Scala case classes and DynamoDB `Item` objects.
-It uses Shapeless to achieve this rather than runtime reflection, so
-you know at compile time whether a case class is mappable or not. At
-runtime any particuarly `Item` could fail to convert due to the 
-unstructured nature of DynamoDB rows. To handle problems at runtime,
-the `Validated` class from Cats is used to provide a result that is
-either a `Valid` instance of the requested case class, or an `Invalid`
+It uses [Shapeless](https://github.com/milessabin/shapeless) to achieve 
+this rather than runtime reflection, so the compiler will catch any case
+classes that are not mappable.
+
+Due to the unstructured nature of DynamoDB rows, any particular mapping
+could potentially fail at runtime, so the `Validated` class from 
+[Cats](http://typelevel.org/cats/) is used to provide a result that is 
+either a `Valid` instance of the requested case class or an `Invalid` 
 result with all errors collected in a `NonEmptyList`.
 
 All the standard types supported by the `Item` class are supported in
 Scalamo. Mappers for Java 8 `ZonedDateTime` and `Instant` values are
-also provided.
+also provided. `ZonedDateTime` values are stored as strings in ISO-8601
+format and `Instant` values are stored as `Long`s.
 
 # Example
 
