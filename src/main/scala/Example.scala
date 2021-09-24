@@ -11,6 +11,6 @@ object Example extends App {
   val maybeUser = table.get[User]("userId", "12345") // returns scalamo.Validated[User], which is cats.data.ValidatedNel[Throwable, User]
 
   maybeUser.foreach { user =>
-    table.put(user.copy(lastLogin = Instant.now()))
+    table.put(user.copy(lastLogin = Instant.now()))  // Update the user's lastLogin value
   }
 }
