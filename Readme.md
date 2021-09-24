@@ -31,7 +31,7 @@ case class User(userId: String, name: String, lastLogin: Instant)
 
 val dynamoDB = ???
 val table = dynamoDB.getTable("users")
-val maybeUser = table.get[User]("userId", "12345")  // returns Validated[User]
+val maybeUser = table.get[User]("userId", "12345")  // returns scalamo.Validated[User], which is cats.data.ValidatedNel[Throwable, User]
 
 maybeUser.foreach { user =>
   table.put(user.copy(lastLogin = Instant.now()))
