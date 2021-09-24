@@ -1,6 +1,6 @@
 package object scalamo {
   import cats.data.ValidatedNel
-  import com.amazonaws.services.dynamodbv2.document.{Item, ItemCollection, PutItemOutcome, ScanOutcome, Table}
+  import com.amazonaws.services.dynamodbv2.document.{BatchWriteItemOutcome, DynamoDB, Item, ItemCollection, PutItemOutcome, ScanOutcome, Table, TableWriteItems}
   import scala.jdk.CollectionConverters._
   import scalamo.mapping.{AttributeUnmarshaller, ItemMarshaller, ItemUnmarshaller}
 
@@ -55,5 +55,10 @@ package object scalamo {
   implicit class ItemCollectionOps[A](val itemCollection: ItemCollection[A]) extends AnyVal {
     def iterateAs[B](implicit unmarshaller: ItemUnmarshaller[B]): Iterator[Validated[B]] =
       itemCollection.iterator().asScala.map(unmarshaller.apply)
+  }
+
+  implicit class DynamoDBOps(val dynamoDB: DynamoDB) extends AnyVal {
+    def put[A](table: String, as: Iterable[A])(implicit marshaller: ItemMarshaller[A]): BatchWriteItemOutcome =
+      dynamoDB.batchWriteItem(new TableWriteItems(table).withItemsToPut(as.map(marshaller(_)).asJavaCollection))
   }
 }
