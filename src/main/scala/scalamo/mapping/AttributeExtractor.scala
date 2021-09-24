@@ -22,74 +22,54 @@ trait AttributeExtractors {
   import java.time.{Instant, ZonedDateTime}
   import scala.jdk.CollectionConverters._
 
-  implicit val bigDecimalExtractor = new AttributeExtractor[BigDecimal] {
-    def apply(item: Item, attr: String): BigDecimal =
-      BigDecimal(item.getNumber(attr))
-  }
+  implicit val bigDecimalExtractor: AttributeExtractor[BigDecimal] =
+    (item: Item, attr: String) => BigDecimal(item.getNumber(attr))
 
-  implicit val bigIntExtractor = new AttributeExtractor[BigInt] {
-    def apply(item: Item, attr: String): BigInt =
-      BigInt(item.getBigInteger(attr))
-  }
+  implicit val bigIntExtractor: AttributeExtractor[BigInt] =
+    (item: Item, attr: String) => BigInt(item.getBigInteger(attr))
 
-  implicit val binaryExtractor = new AttributeExtractor[Array[Byte]] {
-    def apply(item: Item, attr: String): Array[Byte] =
-      item.getBinary(attr)
-  }
+  implicit val binaryExtractor: AttributeExtractor[Array[Byte]] =
+    (item: Item, attr: String) => item.getBinary(attr)
 
-  implicit val booleanExtractor = new AttributeExtractor[Boolean] {
-    def apply(item: Item, attr: String): Boolean = item.getBoolean(attr)
-  }
+  implicit val booleanExtractor: AttributeExtractor[Boolean] =
+    (item: Item, attr: String) => item.getBoolean(attr)
 
-  implicit val byteBufferExtractor = new AttributeExtractor[ByteBuffer] {
-    def apply(item: Item, attr: String): ByteBuffer = item.getByteBuffer(attr)
-  }
+  implicit val byteBufferExtractor: AttributeExtractor[ByteBuffer] =
+    (item: Item, attr: String) => item.getByteBuffer(attr)
 
-  implicit val byteBufferSetExtractor = new AttributeExtractor[Set[ByteBuffer]] {
-    def apply(item: Item, attr: String): Set[ByteBuffer] =
-      item.getByteBufferSet(attr).asScala.toSet
-  }
+  implicit val byteBufferSetExtractor: AttributeExtractor[Set[ByteBuffer]] =
+    (item: Item, attr: String) => item.getByteBufferSet(attr).asScala.toSet
 
-  implicit val doubleExtractor = new AttributeExtractor[Double] {
-    def apply(item: Item, attr: String): Double = item.getDouble(attr)
-  }
+  implicit val doubleExtractor: AttributeExtractor[Double] =
+    (item: Item, attr: String) => item.getDouble(attr)
 
-  implicit val floatExtractor = new AttributeExtractor[Float] {
-    def apply(item: Item, attr: String): Float = item.getFloat(attr)
-  }
+  implicit val floatExtractor: AttributeExtractor[Float] =
+    (item: Item, attr: String) => item.getFloat(attr)
 
-  implicit val intExtractor = new AttributeExtractor[Int] {
-    def apply(item: Item, attr: String): Int = item.getInt(attr)
-  }
+  implicit val intExtractor: AttributeExtractor[Int] =
+    (item: Item, attr: String) => item.getInt(attr)
 
-  implicit val longExtractor = new AttributeExtractor[Long] {
-    def apply(item: Item, attr: String): Long = item.getLong(attr)
-  }
+  implicit val longExtractor: AttributeExtractor[Long] =
+    (item: Item, attr: String) => item.getLong(attr)
 
-  implicit def mapExtractor[A] = new AttributeExtractor[Map[String, A]] {
-    def apply(item: Item, attr: String): Map[String, A] = item.getMap[A](attr).asScala.toMap
-  }
+  implicit def mapExtractor[A]: AttributeExtractor[Map[String, A]] =
+    (item: Item, attr: String) => item.getMap[A](attr).asScala.toMap
 
-  implicit val stringExtractor = new AttributeExtractor[String] {
-    def apply(item: Item, attr: String): String = item.getString(attr)
-  }
-  implicit val zonedDateTimeExtractor = new AttributeExtractor[ZonedDateTime] {
-    def apply(item: Item, attr: String): ZonedDateTime =
+  implicit val stringExtractor: AttributeExtractor[String] =
+    (item: Item, attr: String) => item.getString(attr)
+
+  implicit val zonedDateTimeExtractor: AttributeExtractor[ZonedDateTime] =
+    (item: Item, attr: String) =>
       ZonedDateTime.parse(stringExtractor(item, attr), DateTimeFormatter.ISO_ZONED_DATE_TIME)
-  }
-  implicit val instantExtractor = new AttributeExtractor[Instant] {
-    def apply(item: Item, attr: String): Instant =
-      Instant.ofEpochMilli(longExtractor(item, attr))
-  }
 
-  implicit def seqExtractor[A] = new AttributeExtractor[Seq[A]] {
-    def apply(item: Item, attr: String): Seq[A] = item.getList[A](attr).asScala.toSeq
-  }
+  implicit val instantExtractor: AttributeExtractor[Instant] =
+    (item: Item, attr: String) => Instant.ofEpochMilli(longExtractor(item, attr))
+
+  implicit def seqExtractor[A]: AttributeExtractor[Seq[A]] =
+    (item: Item, attr: String) => item.getList[A](attr).asScala.toSeq
 }
 
 trait AttributeExtractors1 {
-  implicit def listExtractor[A] = new AttributeExtractor[List[A]] {
-    def apply(item: Item, attr: String): List[A] =
-      AttributeExtractor.seqExtractor(item, attr).toList
-  }
+  implicit def listExtractor[A]: AttributeExtractor[List[A]] =
+    (item: Item, attr: String) => AttributeExtractor.seqExtractor(item, attr).toList
 }

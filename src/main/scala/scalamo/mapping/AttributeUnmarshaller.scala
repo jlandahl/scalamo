@@ -22,85 +22,69 @@ trait AttributeUnmarshallers {
   import java.time.{Instant, ZonedDateTime}
   import cats.syntax.validated._
 
-  implicit val bigDecimalUnmarshaller = new AttributeUnmarshaller[BigDecimal] {
-    def apply(item: Item, attr: String): Validated[BigDecimal] =
+  implicit val bigDecimalUnmarshaller: AttributeUnmarshaller[BigDecimal] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as BigDecimal")
-  }
 
-  implicit val bigIntUnmarshaller = new AttributeUnmarshaller[BigInt] {
-    def apply(item: Item, attr: String): Validated[BigInt] =
+  implicit val bigIntUnmarshaller: AttributeUnmarshaller[BigInt] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as BigInt")
-  }
 
-  implicit val binaryUnmarshaller = new AttributeUnmarshaller[Array[Byte]] {
-    def apply(item: Item, attr: String): Validated[Array[Byte]] =
+  implicit val binaryUnmarshaller: AttributeUnmarshaller[Array[Byte]] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as Array[Byte]")
-  }
 
-  implicit val booleanUnmarshaller = new AttributeUnmarshaller[Boolean] {
-    def apply(item: Item, attr: String): Validated[Boolean] =
+  implicit val booleanUnmarshaller: AttributeUnmarshaller[Boolean] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as Boolean")
-  }
 
-  implicit val byteBufferUnmarshaller = new AttributeUnmarshaller[ByteBuffer] {
-    def apply(item: Item, attr: String): Validated[ByteBuffer] =
+  implicit val byteBufferUnmarshaller: AttributeUnmarshaller[ByteBuffer] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as ByteBuffer")
-  }
 
-  implicit val byteBufferSetUnmarshaller = new AttributeUnmarshaller[Set[ByteBuffer]] {
-    def apply(item: Item, attr: String): Validated[Set[ByteBuffer]] =
+  implicit val byteBufferSetUnmarshaller: AttributeUnmarshaller[Set[ByteBuffer]] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as Set[ByteBuffer]")
-  }
 
-  implicit val doubleUnmarshaller = new AttributeUnmarshaller[Double] {
-    def apply(item: Item, attr: String): Validated[Double] =
+  implicit val doubleUnmarshaller: AttributeUnmarshaller[Double] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as Double")
-  }
 
-  implicit val floatUnmarshaller = new AttributeUnmarshaller[Float] {
-    def apply(item: Item, attr: String): Validated[Float] =
+  implicit val floatUnmarshaller: AttributeUnmarshaller[Float] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as Float")
-  }
 
-  implicit val intUnmarshaller = new AttributeUnmarshaller[Int] {
-    def apply(item: Item, attr: String): Validated[Int] =
+  implicit val intUnmarshaller: AttributeUnmarshaller[Int] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as Int")
-  }
 
-  implicit val longUnmarshaller = new AttributeUnmarshaller[Long] {
-    def apply(item: Item, attr: String): Validated[Long] =
+  implicit val longUnmarshaller: AttributeUnmarshaller[Long] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as Long")
-  }
 
-  implicit def mapUnmarshaller[A] = new AttributeUnmarshaller[Map[String, A]] {
-    def apply(item: Item, attr: String): Validated[Map[String, A]] =
+  implicit def mapUnmarshaller[A]: AttributeUnmarshaller[Map[String, A]] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as Map[String, A]")
-  }
 
-  implicit val stringUnmarshaller = new AttributeUnmarshaller[String] {
-    def apply(item: Item, attr: String): Validated[String] =
+  implicit val stringUnmarshaller: AttributeUnmarshaller[String] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as String")
-  }
 
-  implicit val zonedDateTimeUnmarshaller = new AttributeUnmarshaller[ZonedDateTime] {
-    def apply(item: Item, attr: String): Validated[ZonedDateTime] =
+  implicit val zonedDateTimeUnmarshaller: AttributeUnmarshaller[ZonedDateTime] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as ZonedDateTime")
-  }
 
-  implicit val instantUnmarshaller = new AttributeUnmarshaller[Instant] {
-    def apply(item: Item, attr: String): Validated[Instant] =
+  implicit val instantUnmarshaller: AttributeUnmarshaller[Instant] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as Instant")
-  }
 
-  implicit def seqUnmarshaller[A] = new AttributeUnmarshaller[Seq[A]] {
-    def apply(item: Item, attr: String): Validated[Seq[A]] =
+  implicit def seqUnmarshaller[A]: AttributeUnmarshaller[Seq[A]] =
+    (item: Item, attr: String) =>
       nonOptional(item, attr, s"Error getting '$attr' as Seq")
-  }
 
-  implicit def optionUnmarshaller[A](implicit extractor: AttributeExtractor[A]) = new AttributeUnmarshaller[Option[A]] {
-    def apply(item: Item, attr: String): Validated[Option[A]] =
+  implicit def optionUnmarshaller[A](implicit extractor: AttributeExtractor[A]): AttributeUnmarshaller[Option[A]] =
+    (item: Item, attr: String) =>
       optional(item, attr, s"Error getting '$attr' as ???")
-  }
 
   def nonOptional[A](item: Item, attr: String, message: String)(implicit extractor: AttributeExtractor[A]): Validated[A] =
     Validated.catchNonFatal(extractor(item, attr), message)
@@ -118,8 +102,7 @@ trait AttributeUnmarshallers {
 }
 
 trait AttributeUnmarshallers1 {
-  implicit def listUnmarshaller[A](implicit extractor: AttributeExtractor[List[A]]) = new AttributeUnmarshaller[List[A]] {
-    def apply(item: Item, attr: String): Validated[List[A]] =
+  implicit def listUnmarshaller[A](implicit extractor: AttributeExtractor[List[A]]): AttributeUnmarshaller[List[A]] =
+    (item: Item, attr: String) =>
       Validated.catchNonFatal(extractor(item, attr), s"Error getting '$attr' as List[A]")
-  }
 }
