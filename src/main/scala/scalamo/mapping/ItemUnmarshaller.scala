@@ -25,11 +25,11 @@ trait ItemUnmarshallers {
 
   implicit def hconsItemUnmarshaller[K <: Symbol, V, T <: HList](implicit
                                                                  witness: Witness.Aux[K],
-                                                                 attributeExtractor: Lazy[AttributeUnmarshaller[V]],
+                                                                 attributeUmarshaller: Lazy[AttributeUnmarshaller[V]],
                                                                  itemUnmarshallerT: Lazy[ItemUnmarshaller[T]]
                                                                 ): ItemUnmarshaller[FieldType[K, V] :: T] =
     (item: Item) => {
-      val v = attributeExtractor.value(item, witness.value.name)
+      val v = attributeUmarshaller.value(item, witness.value.name)
       val t = itemUnmarshallerT.value(item)
       Apply[Validated].map2(v, t) { field[K](_) :: _ }
     }
