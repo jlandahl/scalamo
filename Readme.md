@@ -31,7 +31,10 @@ case class User(userId: String, name: String, lastLogin: Instant)
 
 val dynamoDB = ???
 val table = dynamoDB.getTable("users")
-val user = table.get[User]("userId", "12345")
+val maybeUser = table.get[User]("userId", "12345")  // returns Validated[User]
 
-table.put(user.copy(lastLogin = Instant.now()))
+
+maybeUser.foreach { user =>
+  table.put(user.copy(lastLogin = Instant.now()))
+}
 ```
