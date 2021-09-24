@@ -18,28 +18,21 @@ trait ItemMarshallers {
   import shapeless.labelled.FieldType
 
   implicit val hnilItemMarshaller: ItemMarshaller[HNil] =
-    new ItemMarshaller[HNil] {
-      override def apply(a: HNil): Item = new Item
-    }
+    (a: HNil) => new Item
 
   implicit def hconsItemMarshaller[K <: Symbol, V, T <: HList](implicit
                                                                witness: Witness.Aux[K],
                                                                itemMarshallerT: Lazy[ItemMarshaller[T]],
                                                                attributeMarshaller: Lazy[AttributeMarshaller[V]]
                                                               ): ItemMarshaller[FieldType[K, V] :: T] =
-    new ItemMarshaller[FieldType[K, V] :: T] {
-      override def apply(a: FieldType[K, V] :: T): Item = {
-        val item = itemMarshallerT.value(a.tail)
-        attributeMarshaller.value(item, witness.value.name, a.head)
-      }
+    (a: FieldType[K, V] :: T) => {
+      val item = itemMarshallerT.value(a.tail)
+      attributeMarshaller.value(item, witness.value.name, a.head)
     }
 
   implicit def caseClassMarshaller[A, R <: HList](implicit
                                                   gen: LabelledGeneric.Aux[A, R],
                                                   marshaller: Lazy[ItemMarshaller[R]]
                                                  ): ItemMarshaller[A] =
-    new ItemMarshaller[A] {
-      def apply(a: A): Item =
-        marshaller.value(gen.to(a))
-    }
+    (a: A) => marshaller.value(gen.to(a))
 }

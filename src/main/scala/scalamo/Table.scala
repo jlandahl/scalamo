@@ -1,18 +1,20 @@
 package scalamo
 
-import com.amazonaws.services.dynamodbv2.document._
+import com.amazonaws.services.dynamodbv2.document.DynamoDB
 import scalamo.mapping.{ItemMarshaller, ItemUnmarshaller}
 
 case class Table[A](dynamoDB: DynamoDB, tableName: String,
                     projectionExpression: Option[String] = None,
                     nameMap: Option[Map[String, String]] = None)
                    (implicit marshaller: ItemMarshaller[A], unmarshaller: ItemUnmarshaller[A]) {
-  import cats.data.Xor
   import cats.syntax.validated._
+  import cats.syntax.either._
+  import com.amazonaws.services.dynamodbv2.document.{KeyAttribute, PrimaryKey, Table => DynamoTable}
   import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
+  import scala.util.Either
 
-  val table = dynamoDB.getTable(tableName)
+  val table: DynamoTable = dynamoDB.getTable(tableName)
 
   def get(hashKeyName: String, hashKeyValue: Any): Validated[A] =
     try {
@@ -67,8 +69,8 @@ case class Table[A](dynamoDB: DynamoDB, tableName: String,
         t.invalidNel
     }
 
-  def scan(filterExpression: String, valueMap: Map[String, AnyRef]): Xor[Throwable, Iterator[Validated[A]]] =
-    Xor catchNonFatal {
+  def scan(filterExpression: String, valueMap: Map[String, AnyRef]): Either[Throwable, Iterator[Validated[A]]] =
+    Either catchNonFatal {
       val results = (projectionExpression, nameMap) match {
         case (Some(pe), Some(nm)) =>
           table.scan(filterExpression, pe, nm.asJava, valueMap.asJava)

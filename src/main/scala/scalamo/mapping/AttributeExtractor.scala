@@ -20,7 +20,7 @@ trait AttributeExtractors {
   import java.nio.ByteBuffer
   import java.time.format.DateTimeFormatter
   import java.time.{Instant, ZonedDateTime}
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
 
   implicit val bigDecimalExtractor = new AttributeExtractor[BigDecimal] {
     def apply(item: Item, attr: String): BigDecimal =
@@ -83,7 +83,7 @@ trait AttributeExtractors {
   }
 
   implicit def seqExtractor[A] = new AttributeExtractor[Seq[A]] {
-    def apply(item: Item, attr: String): Seq[A] = item.getList[A](attr).asScala
+    def apply(item: Item, attr: String): Seq[A] = item.getList[A](attr).asScala.toSeq
   }
 }
 

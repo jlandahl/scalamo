@@ -6,14 +6,13 @@ abstract class CacheLoader[K, V](implicit keyMapper: KeyMapper[K], itemUnmarshal
   extends javax.cache.integration.CacheLoader[K, V]
 {
   import cats.data.Validated.{Invalid, Valid}
-  import com.amazonaws.auth.profile.ProfileCredentialsProvider
-  import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-  import com.amazonaws.services.dynamodbv2.document.DynamoDB
+  import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
+  import com.amazonaws.services.dynamodbv2.document.{DynamoDB, Table}
 
   def tableName: String
 
-  lazy val dynamoDB = new DynamoDB(new AmazonDynamoDBClient(new ProfileCredentialsProvider()))
-  lazy val table = dynamoDB.getTable(tableName)
+  lazy val dynamoDB: DynamoDB = new DynamoDB(AmazonDynamoDBClientBuilder.defaultClient())
+  lazy val table: Table = dynamoDB.getTable(tableName)
 
   override def load(key: K): V =
     itemUnmarshaller(table.getItem(keyMapper(key))) match {

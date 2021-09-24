@@ -1,7 +1,7 @@
 package object scalamo {
   import cats.data.ValidatedNel
   import com.amazonaws.services.dynamodbv2.document.{Item, ItemCollection, PutItemOutcome, ScanOutcome, Table}
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
   import scalamo.mapping.{AttributeUnmarshaller, ItemMarshaller, ItemUnmarshaller}
 
   type Validated[A] = ValidatedNel[Throwable, A]

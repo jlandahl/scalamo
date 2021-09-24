@@ -17,7 +17,7 @@ trait AttributeMarshallers {
   import java.nio.ByteBuffer
   import java.time.format.DateTimeFormatter
   import java.time.{Instant, ZonedDateTime}
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
 
   implicit val bigDecimalMarshaller =
     new AttributeMarshaller[BigDecimal] {
