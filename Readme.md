@@ -27,7 +27,7 @@ format and `Instant` values are stored as `Long`s.
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
 import com.amazonaws.services.dynamodbv2.document.DynamoDB
 import java.time.Instant
-import scalamo._
+import scalamo.{Table, Validated}
 
 case class User(userId: String, name: String, lastLogin: Instant)
 
