@@ -45,10 +45,21 @@ object Example extends App {
   dynamoDB.put("users", users)
 
   // retrieve one user
-  val maybeUser = table.get[User]("userId", "12345") // returns scalamo.Validated[User], which is cats.data.ValidatedNel[Throwable, User]
+  val maybeUser: Validated[User] = table.get[User]("userId", "12345")
   maybeUser.foreach { user =>
     // Update the user's lastLogin value
     table.put(user.copy(lastLogin = Instant.now()))
   }
+
+  // batch get users
+  val maybeUsers: Validated[Seq[User]] = dynamoDB.get[User, String]("users", "userId", "23456", "34567")
+  maybeUsers.foreach { users =>
+    users.foreach(println)
+  }
 }
+```
+
+Note that `scalamo.Validated` is defined as:
+```scala
+type Validated[A] = cats.data.ValidatedNel[Throwable, A]
 ```
