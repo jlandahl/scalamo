@@ -1,3 +1,5 @@
+package scalamo.examples
+
 import cats.data.Validated.{Invalid, Valid}
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
 import com.amazonaws.services.dynamodbv2.document.DynamoDB
