@@ -29,7 +29,7 @@ package object scalamo {
   implicit class TableOps(val table: Table) extends AnyVal {
     import com.amazonaws.services.dynamodbv2.document.{KeyAttribute, PrimaryKey}
 
-    def get[A](hashKeyName: String, hashKeyValue: Any)(implicit unmarshaller: ItemUnmarshaller[A]): Validated[A] =
+    def get[A, B](hashKeyName: String, hashKeyValue: B)(implicit unmarshaller: ItemUnmarshaller[A]): Validated[A] =
       unmarshaller(table.getItem(hashKeyName, hashKeyValue))
 
     def get[A](primaryKeyComponents: KeyAttribute*)(implicit unmarshaller: ItemUnmarshaller[A]): Validated[A] =
