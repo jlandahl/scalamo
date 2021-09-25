@@ -9,14 +9,14 @@ case class Table[A](dynamoDB: DynamoDB, tableName: String,
                    (implicit marshaller: ItemMarshaller[A], unmarshaller: ItemUnmarshaller[A]) {
   import cats.syntax.validated._
   import cats.syntax.either._
-  import com.amazonaws.services.dynamodbv2.document.{KeyAttribute, PrimaryKey, Table => DynamoTable}
+  import com.amazonaws.services.dynamodbv2.document.{BatchWriteItemOutcome, KeyAttribute, PrimaryKey, PutItemOutcome, Table => DynamoTable}
   import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec
   import scala.jdk.CollectionConverters._
   import scala.util.Either
 
   val table: DynamoTable = dynamoDB.getTable(tableName)
 
-  def get(hashKeyName: String, hashKeyValue: Any): Validated[A] =
+  def get[B](hashKeyName: String, hashKeyValue: B): Validated[A] =
     try {
       val item = (projectionExpression, nameMap) match {
         case (Some(expr), Some(map)) =>
@@ -30,8 +30,8 @@ case class Table[A](dynamoDB: DynamoDB, tableName: String,
         t.invalidNel
     }
 
-  def get(hashKeyName: String, hashKeyValue: Any,
-          rangeKeyName: String, rangeKeyValue: Any): Validated[A] =
+  def get[B, C](hashKeyName: String, hashKeyValue: B,
+          rangeKeyName: String, rangeKeyValue: C): Validated[A] =
     try {
       val item = (projectionExpression, nameMap) match {
         case (Some(expr), Some(map)) =>
@@ -61,13 +61,22 @@ case class Table[A](dynamoDB: DynamoDB, tableName: String,
         t.invalidNel
     }
 
-  def getItem(spec: GetItemSpec): Validated[A] =
+  def get(spec: GetItemSpec): Validated[A] =
     try {
       unmarshaller(table.getItem(spec))
     } catch {
       case scala.util.control.NonFatal(t) =>
         t.invalidNel
     }
+
+  def get[B](hashKeyName: String, hashKeyValues: Seq[B]): Validated[Seq[A]] = {
+    try {
+      dynamoDB.get(tableName, hashKeyName, hashKeyValues: _*)
+    } catch {
+      case scala.util.control.NonFatal(t) =>
+        t.invalidNel
+    }
+  }
 
   def scan(filterExpression: String, valueMap: Map[String, AnyRef]): Either[Throwable, Iterator[Validated[A]]] =
     Either catchNonFatal {
@@ -81,4 +90,10 @@ case class Table[A](dynamoDB: DynamoDB, tableName: String,
       }
       results.iterateAs[A]
     }
+
+  def put(a: A): PutItemOutcome =
+    table.put(a)
+
+  def put(as: Iterable[A]): BatchWriteItemOutcome =
+    dynamoDB.put(tableName, as)
 }
