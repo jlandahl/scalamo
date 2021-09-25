@@ -33,7 +33,7 @@ case class User(userId: String, name: String, lastLogin: Instant)
 
 object Example extends App {
   val dynamoDB = new DynamoDB(AmazonDynamoDBClientBuilder.defaultClient())
-  val table = dynamoDB.getTable("users")
+  val table = Table[User](dynamoDB, "users")
 
   val users = Seq(
     User("12345", "Mark Corrigan", Instant.now()),
@@ -42,17 +42,17 @@ object Example extends App {
   )
 
   // batch write users
-  dynamoDB.put("users", users)
+  table.put(users)
 
   // retrieve one user
-  val maybeUser: Validated[User] = table.get[User]("userId", "12345")
+  val maybeUser: Validated[User] = table.get("userId", "12345")
   maybeUser.foreach { user =>
     // Update the user's lastLogin value
     table.put(user.copy(lastLogin = Instant.now()))
   }
 
   // batch get users
-  val maybeUsers: Validated[Seq[User]] = dynamoDB.get[User, String]("users", "userId", "23456", "34567")
+  val maybeUsers: Validated[Seq[User]] = table.get("userId", Seq("23456", "34567"))
   maybeUsers.foreach { users =>
     users.foreach(println)
   }
