@@ -1,3 +1,4 @@
+import cats.data.Validated.{Invalid, Valid}
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
 import com.amazonaws.services.dynamodbv2.document.DynamoDB
 import java.time.Instant
@@ -19,14 +20,19 @@ object Example extends App {
   table.put(users)
 
   // retrieve one user
-  val maybeUser: Validated[User] = table.get("userId", "mark-o")
-  maybeUser.foreach { user =>
-    // Update the user's lastLogin value
-    table.put(user.copy(lastLogin = Instant.now()))
+  val maybeUser: Option[Validated[User]] = table.get("userId", "mark-o")
+  maybeUser match {
+    case Some(Valid(user)) =>
+      table.put(user.copy(lastLogin = Instant.now()))
+      println("Updated user")
+    case Some(Invalid(errors)) =>
+      println(s"Errors parsing user item: $errors")
+    case None =>
+      println("Not found")
   }
 
   // batch get users
-  val maybeUsers: Validated[Seq[User]] = table.get("userId", Seq("jez", "superhans"))
+  val maybeUsers: Validated[Seq[User]] = table.get("userId", Seq("jez", "superhans", "sophie"))
   maybeUsers.foreach { users =>
     users.foreach(println)
   }

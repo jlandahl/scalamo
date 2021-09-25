@@ -16,7 +16,7 @@ case class Table[A](dynamoDB: DynamoDB, tableName: String,
 
   val table: DynamoTable = dynamoDB.getTable(tableName)
 
-  def get[B](hashKeyName: String, hashKeyValue: B): Validated[A] =
+  def get[B](hashKeyName: String, hashKeyValue: B): Option[Validated[A]] =
     try {
       val item = (projectionExpression, nameMap) match {
         case (Some(expr), Some(map)) =>
@@ -24,14 +24,14 @@ case class Table[A](dynamoDB: DynamoDB, tableName: String,
         case (_, _) =>
           table.getItem(hashKeyName, hashKeyValue)
       }
-      unmarshaller(item)
+      Option(item).map(unmarshaller(_))
     } catch {
       case scala.util.control.NonFatal(t) =>
-        t.invalidNel
+        Some(t.invalidNel)
     }
 
   def get[B, C](hashKeyName: String, hashKeyValue: B,
-          rangeKeyName: String, rangeKeyValue: C): Validated[A] =
+          rangeKeyName: String, rangeKeyValue: C): Option[Validated[A]] =
     try {
       val item = (projectionExpression, nameMap) match {
         case (Some(expr), Some(map)) =>
@@ -39,34 +39,37 @@ case class Table[A](dynamoDB: DynamoDB, tableName: String,
         case (_, _) =>
           table.getItem(hashKeyName, hashKeyValue, rangeKeyName, rangeKeyValue)
       }
-      unmarshaller(item)
+      Option(item).map(unmarshaller(_))
     } catch {
       case scala.util.control.NonFatal(t) =>
-        t.invalidNel
+        Some(t.invalidNel)
     }
 
-  def get(primaryKeyComponents: KeyAttribute*): Validated[A] =
+  def get(primaryKeyComponents: KeyAttribute*): Option[Validated[A]] =
     try {
-      unmarshaller(table.getItem(primaryKeyComponents: _*))
+      val item = table.getItem(primaryKeyComponents: _*)
+      Option(item).map(unmarshaller(_))
     } catch {
       case scala.util.control.NonFatal(t) =>
-        t.invalidNel
+        Some(t.invalidNel)
     }
 
-  def get(primaryKey: PrimaryKey): Validated[A] =
+  def get(primaryKey: PrimaryKey): Option[Validated[A]] =
     try {
-      unmarshaller(table.getItem(primaryKey))
+      val item = table.getItem(primaryKey)
+      Option(item).map(unmarshaller(_))
     } catch {
       case scala.util.control.NonFatal(t) =>
-        t.invalidNel
+        Some(t.invalidNel)
     }
 
-  def get(spec: GetItemSpec): Validated[A] =
+  def get(spec: GetItemSpec): Option[Validated[A]] =
     try {
-      unmarshaller(table.getItem(spec))
+      val item = table.getItem(spec)
+      Option(item).map(unmarshaller(_))
     } catch {
       case scala.util.control.NonFatal(t) =>
-        t.invalidNel
+        Some(t.invalidNel)
     }
 
   def get[B](hashKeyName: String, hashKeyValues: Seq[B]): Validated[Seq[A]] = {
