@@ -59,9 +59,10 @@ object Example extends App {
 
   // batch get users
   val maybeUsers: Validated[Seq[User]] = table.get("userId", Seq("jez", "superhans", "sophie"))
-  maybeUsers.foreach { users =>
-    users.foreach(println)
-  }
+  for {
+    users <- maybeUsers
+    user <- users
+  } println(user)
 }
 ```
 
